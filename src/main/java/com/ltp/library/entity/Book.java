@@ -1,4 +1,4 @@
-package com.ltp.library;
+package com.ltp.library.entity;
 
 import jakarta.persistence.*;
 

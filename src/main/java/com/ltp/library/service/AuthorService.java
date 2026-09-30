@@ -1,8 +1,12 @@
-package com.ltp.library;
+package com.ltp.library.service;
 
-import dto.AuthorResponse;
-import dto.CreateAuthorRequest;
-import dto.UpdateAuthorRequest;
+import com.ltp.library.AuthorHasBooksException;
+import com.ltp.library.AuthorNotFoundException;
+import com.ltp.library.repository.AuthorRepository;
+import com.ltp.library.entity.Author;
+import com.ltp.library.dto.AuthorResponse;
+import com.ltp.library.dto.CreateAuthorRequest;
+import com.ltp.library.dto.UpdateAuthorRequest;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;

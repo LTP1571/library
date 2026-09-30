@@ -1,6 +1,9 @@
-package com.ltp.library;
+package com.ltp.library.controller;
 
-import dto.*;
+import com.ltp.library.dto.BookResponse;
+import com.ltp.library.dto.CreateBookRequest;
+import com.ltp.library.dto.UpdateBookRequest;
+import com.ltp.library.service.BookService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
