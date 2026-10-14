@@ -1,4 +1,4 @@
-package dto;
+package com.ltp.library.dto;
 
 public class AuthorResponse {
     private Long id;

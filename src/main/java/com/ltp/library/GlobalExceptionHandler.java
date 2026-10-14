@@ -1,6 +1,6 @@
 package com.ltp.library;
 
-import dto.ErrorResponse;
+import com.ltp.library.dto.ErrorResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;

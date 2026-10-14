@@ -1,8 +1,9 @@
-package com.ltp.library;
+package com.ltp.library.controller;
 
-import dto.AuthorResponse;
-import dto.CreateAuthorRequest;
-import dto.UpdateAuthorRequest;
+import com.ltp.library.service.AuthorService;
+import com.ltp.library.dto.AuthorResponse;
+import com.ltp.library.dto.CreateAuthorRequest;
+import com.ltp.library.dto.UpdateAuthorRequest;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
