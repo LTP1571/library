@@ -1,5 +1,6 @@
 package com.ltp.library;
 
+import com.ltp.library.entity.Author;
 import dto.AuthorResponse;
 import dto.CreateAuthorRequest;
 import dto.UpdateAuthorRequest;
