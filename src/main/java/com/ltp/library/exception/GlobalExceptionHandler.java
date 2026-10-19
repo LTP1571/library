@@ -1,4 +1,4 @@
-package com.ltp.library;
+package com.ltp.library.exception;
 
 import com.ltp.library.dto.ErrorResponse;
 import org.springframework.http.HttpStatus;

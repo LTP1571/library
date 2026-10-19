@@ -1,4 +1,4 @@
-package com.ltp.library;
+package com.ltp.library.exception;
 
 public class AuthorNotFoundException extends RuntimeException {
     public AuthorNotFoundException(String message) {

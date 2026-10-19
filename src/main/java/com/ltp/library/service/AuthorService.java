@@ -1,7 +1,7 @@
 package com.ltp.library.service;
 
-import com.ltp.library.AuthorHasBooksException;
-import com.ltp.library.AuthorNotFoundException;
+import com.ltp.library.exception.AuthorHasBooksException;
+import com.ltp.library.exception.AuthorNotFoundException;
 import com.ltp.library.repository.AuthorRepository;
 import com.ltp.library.entity.Author;
 import com.ltp.library.dto.AuthorResponse;

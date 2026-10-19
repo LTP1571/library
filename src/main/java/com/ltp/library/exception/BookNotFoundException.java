@@ -1,4 +1,4 @@
-package com.ltp.library;
+package com.ltp.library.exception;
 
 public class BookNotFoundException extends RuntimeException {
     public BookNotFoundException(String message) {
