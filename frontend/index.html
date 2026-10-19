@@ -1,0 +1,219 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Library Frontend</title>
+<style>
+  :root { color-scheme:dark; --bg:#0f1115; --card:#181b21; --text:#e6e8eb; --muted:#9aa1ab; --line:#2a2f37; --accent:#4c8dff; --ok:#4ade80; --err:#f87171; --field:#11141a; --code:#232836; }
+  * { box-sizing:border-box; }
+  body { margin:0; font-family:system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; background:var(--bg); color:var(--text); }
+  header { padding:16px 24px; background:var(--card); border-bottom:1px solid var(--line); display:flex; gap:16px; align-items:center; flex-wrap:wrap; }
+  header h1 { font-size:18px; margin:0; }
+  header code { background:var(--code); padding:2px 6px; border-radius:4px; }
+  main { display:grid; grid-template-columns:1fr 1fr; gap:16px; padding:16px 24px; }
+  section { background:var(--card); border:1px solid var(--line); border-radius:8px; padding:16px; }
+  section.full { grid-column:1 / -1; }
+  h2 { font-size:16px; margin:0 0 12px; }
+  form { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:12px; }
+  input, select { padding:6px 8px; border:1px solid var(--line); border-radius:6px; font:inherit; background:var(--field); color:var(--text); }
+  button { padding:6px 12px; border:1px solid var(--accent); background:var(--accent); color:#0b0d11; border-radius:6px; cursor:pointer; font:inherit; font-weight:600; }
+  button.ghost { background:transparent; color:var(--accent); }
+  button.danger { background:transparent; color:var(--err); border-color:var(--err); }
+  table { width:100%; border-collapse:collapse; font-size:14px; }
+  th, td { text-align:left; padding:6px 8px; border-bottom:1px solid var(--line); vertical-align:middle; }
+  td.actions { white-space:nowrap; text-align:right; }
+  td.actions button { padding:3px 8px; font-size:13px; }
+  .log { font-family:ui-monospace, Consolas, monospace; font-size:13px; max-height:260px; overflow:auto; }
+  .log div { padding:4px 0; border-bottom:1px dashed var(--line); }
+  .ok { color:var(--ok); } .err { color:var(--err); } .muted { color:var(--muted); }
+  @media (max-width:800px) { main { grid-template-columns:1fr; padding:16px; } }
+</style>
+</head>
+<body>
+<header>
+  <h1>Library Frontend</h1>
+  <span class="muted">API: <code id="apiLabel"></code></span>
+  <span class="muted">Origin trang này: <code id="originLabel"></code></span>
+  <button class="ghost" onclick="loadAll()">Tải lại dữ liệu</button>
+</header>
+
+<main>
+  <section>
+    <h2>Authors</h2>
+    <form id="authorForm">
+      <input id="authorName" placeholder="Tên tác giả" required>
+      <button type="submit">Thêm author</button>
+    </form>
+    <table>
+      <thead><tr><th>ID</th><th>Name</th><th></th></tr></thead>
+      <tbody id="authorRows"></tbody>
+    </table>
+  </section>
+
+  <section>
+    <h2>Books</h2>
+    <form id="bookForm">
+      <input id="bookTitle" placeholder="Tên sách" required>
+      <select id="bookAuthor" required></select>
+      <button type="submit">Thêm book</button>
+    </form>
+    <table>
+      <thead><tr><th>ID</th><th>Title</th><th>Author</th><th></th></tr></thead>
+      <tbody id="bookRows"></tbody>
+    </table>
+  </section>
+
+  <section class="full">
+    <h2>Log request</h2>
+    <div class="log" id="log"></div>
+  </section>
+</main>
+
+<script>
+  const API = "http://localhost:8080/api";
+  document.getElementById("apiLabel").textContent = API;
+  document.getElementById("originLabel").textContent = location.origin;
+
+  let authors = [];
+
+  function log(text, cls) {
+    const line = document.createElement("div");
+    line.className = cls || "";
+    line.textContent = new Date().toLocaleTimeString() + "  " + text;
+    const box = document.getElementById("log");
+    box.prepend(line);
+  }
+
+  // Mọi lời gọi API đi qua hàm này
+  async function api(method, path, body) {
+    const options = { method: method, headers: {} };
+    if (body !== undefined) {
+      options.headers["Content-Type"] = "application/json";
+      options.body = JSON.stringify(body);
+    }
+    let res;
+    try {
+      res = await fetch(API + path, options);
+    } catch (e) {
+      // Trình duyệt chặn (CORS) hoặc server chưa chạy: fetch ném lỗi, không có status
+      log(method + " " + path + " → BỊ CHẶN / KHÔNG KẾT NỐI: " + e.message + " (xem tab Console và Network)", "err");
+      throw e;
+    }
+    const text = await res.text();
+    const data = text ? JSON.parse(text) : null;
+    if (!res.ok) {
+      const msg = data && data.message ? data.message : res.statusText;
+      const detail = data && data.errors ? " " + JSON.stringify(data.errors) : "";
+      log(method + " " + path + " → " + res.status + " " + msg + detail, "err");
+      throw new Error(msg);
+    }
+    log(method + " " + path + " → " + res.status, "ok");
+    return data;
+  }
+
+  function cell(text) {
+    const td = document.createElement("td");
+    td.textContent = text;
+    return td;
+  }
+
+  function actionCell(buttons) {
+    const td = document.createElement("td");
+    td.className = "actions";
+    buttons.forEach(function (b) {
+      const btn = document.createElement("button");
+      btn.textContent = b.label;
+      btn.className = b.cls;
+      btn.onclick = b.onClick;
+      td.appendChild(btn);
+      td.appendChild(document.createTextNode(" "));
+    });
+    return td;
+  }
+
+  function renderAuthors() {
+    const rows = document.getElementById("authorRows");
+    rows.innerHTML = "";
+    authors.forEach(function (a) {
+      const tr = document.createElement("tr");
+      tr.appendChild(cell(a.id));
+      tr.appendChild(cell(a.name));
+      tr.appendChild(actionCell([
+        { label: "Sửa", cls: "ghost", onClick: function () { editAuthor(a); } },
+        { label: "Xoá", cls: "danger", onClick: function () { deleteAuthor(a.id); } }
+      ]));
+      rows.appendChild(tr);
+    });
+
+    const select = document.getElementById("bookAuthor");
+    select.innerHTML = "";
+    authors.forEach(function (a) {
+      const opt = document.createElement("option");
+      opt.value = a.id;
+      opt.textContent = a.id + " - " + a.name;
+      select.appendChild(opt);
+    });
+  }
+
+  function renderBooks(books) {
+    const rows = document.getElementById("bookRows");
+    rows.innerHTML = "";
+    books.forEach(function (b) {
+      const tr = document.createElement("tr");
+      tr.appendChild(cell(b.id));
+      tr.appendChild(cell(b.title));
+      tr.appendChild(cell(b.author ? b.author.name : ""));
+      tr.appendChild(actionCell([
+        { label: "Sửa", cls: "ghost", onClick: function () { editBook(b); } },
+        { label: "Xoá", cls: "danger", onClick: function () { deleteBook(b.id); } }
+      ]));
+      rows.appendChild(tr);
+    });
+  }
+
+  async function loadAll() {
+    try {
+      authors = await api("GET", "/authors");
+      renderAuthors();
+      renderBooks(await api("GET", "/books"));
+    } catch (e) { /* đã ghi log */ }
+  }
+
+  async function editAuthor(a) {
+    const name = window.prompt("Tên mới cho author " + a.id, a.name);
+    if (name === null) return;
+    try { await api("PUT", "/authors/" + a.id, { name: name }); loadAll(); } catch (e) {}
+  }
+
+  async function deleteAuthor(id) {
+    try { await api("DELETE", "/authors/" + id); loadAll(); } catch (e) {}
+  }
+
+  async function editBook(b) {
+    const title = window.prompt("Tên mới cho book " + b.id, b.title);
+    if (title === null) return;
+    try { await api("PUT", "/books/" + b.id, { title: title, authorId: b.author.id }); loadAll(); } catch (e) {}
+  }
+
+  async function deleteBook(id) {
+    try { await api("DELETE", "/books/" + id); loadAll(); } catch (e) {}
+  }
+
+  document.getElementById("authorForm").addEventListener("submit", async function (e) {
+    e.preventDefault();
+    const input = document.getElementById("authorName");
+    try { await api("POST", "/authors", { name: input.value }); input.value = ""; loadAll(); } catch (err) {}
+  });
+
+  document.getElementById("bookForm").addEventListener("submit", async function (e) {
+    e.preventDefault();
+    const title = document.getElementById("bookTitle");
+    const authorId = Number(document.getElementById("bookAuthor").value);
+    try { await api("POST", "/books", { title: title.value, authorId: authorId }); title.value = ""; loadAll(); } catch (err) {}
+  });
+
+  loadAll();
+</script>
+</body>
+</html>
