@@ -7,8 +7,9 @@ public class Book {
     @GeneratedValue
     @Id
     private Long id;
+    @Column(nullable = false)
     private String title;
-    @JoinColumn(name = "author_id")//bảng book sẽ có một cột tên author_id
+    @JoinColumn(name = "author_id", nullable = false) //bảng book sẽ có một cột tên author_id
     @ManyToOne //nhiều Book trỏ về một Author
     private Author author;
 

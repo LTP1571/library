@@ -1,10 +1,8 @@
 package com.ltp.library.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
+import jakarta.persistence.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -13,9 +11,10 @@ public class Author {
     @GeneratedValue
     @Id
     private Long id;
+    @Column(nullable = false)
     private String name;
-    @OneToMany(mappedBy = "author") //quan hệ này đã được khai ở field tên author bên class kia rồi, tao chỉ đọc lại thôi
-    private List<Book> books;
+    @OneToMany(mappedBy = "author")
+    private List<Book> books = new ArrayList<>();
 
     public Long getId() {
         return id;
@@ -26,6 +25,7 @@ public class Author {
     }
 
     public List<Book> getBooks() {
+
         return books;
     }
 
@@ -40,4 +40,6 @@ public class Author {
     public void setBooks(List<Book> books) {
         this.books = books;
     }
+
+
 }

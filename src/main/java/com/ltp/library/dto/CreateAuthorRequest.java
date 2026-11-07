@@ -1,9 +1,11 @@
 package com.ltp.library.dto;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 
 public class CreateAuthorRequest {
     @NotBlank
+    @Size(max=255)
     private String name;
 
     public String getName() {

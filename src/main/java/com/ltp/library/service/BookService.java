@@ -38,23 +38,30 @@ public class BookService {
     }
 
     public BookResponse findById(Long id) {
-        Book exist = repository.findById(id).orElseThrow(() -> new BookNotFoundException("Book not found with id: " + id));
+        Book exist = repository.findById(id).
+                orElseThrow(() -> new BookNotFoundException("Book not found with id: " + id));
         return toResponse(exist);
     }
 
     public BookResponse create(CreateBookRequest request) {
         Book book = new Book();
         book.setTitle(request.getTitle());
-        Author exist = authorRepository.findById(request.getAuthorId()).orElseThrow(() -> new AuthorNotFoundException("Author not found with id: " + request.getAuthorId()));
+        Author exist = authorRepository.
+                findById(request.getAuthorId()).
+                orElseThrow(() -> new AuthorNotFoundException("Author not found with id: " + request.getAuthorId()));
         book.setAuthor(exist);
         repository.save(book);
         return toResponse(book);
     }
 
     public BookResponse update(Long id, UpdateBookRequest request){
-        Book exist1 = repository.findById(id).orElseThrow(() -> new BookNotFoundException("Book not found with id: " + id));
+        Book exist1 = repository.
+                findById(id).
+                orElseThrow(() -> new BookNotFoundException("Book not found with id: " + id));
         exist1.setTitle(request.getTitle());
-        Author exist = authorRepository.findById(request.getAuthorId()).orElseThrow(() -> new AuthorNotFoundException("Author not found with id: " + request.getAuthorId()));
+        Author exist = authorRepository.
+                findById(request.getAuthorId()).
+                orElseThrow(() -> new AuthorNotFoundException("Author not found with id: " + request.getAuthorId()));
         exist1.setAuthor(exist);
         repository.save(exist1);
         return toResponse(exist1);
